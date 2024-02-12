@@ -10,20 +10,28 @@ import {
   ModalHeader,
 } from "reactstrap";
 
-import { fetchPokemonDetail, fetchPokemonList } from "./redux/pokemonSlice";
+import {
+  fetchPokemonDetail,
+  fetchPokemonList,
+  resetDetail,
+} from "./redux/pokemonSlice";
 
 const App = () => {
   const dispatch = useDispatch();
   const list = useSelector((state) => state.pokemon.list);
+  const detail = useSelector((state) => state.pokemon.detail);
+
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchPokemonList());
   }, [dispatch]);
 
-  const toggle = (shouldFetch) => {
-    if (shouldFetch) {
-      dispatch(fetchPokemonDetail(1));
+  const toggle = (url) => {
+    if (url) {
+      dispatch(fetchPokemonDetail(url));
+    } else {
+      dispatch(resetDetail());
     }
 
     setIsOpen((prev) => !prev);
@@ -36,7 +44,7 @@ const App = () => {
           <Card
             style={{ marginBottom: 10 }}
             key={pokemon.name}
-            onClick={toggle}
+            onClick={() => toggle(pokemon.url)}
           >
             <CardBody>
               <CardTitle>{pokemon.name}</CardTitle>
@@ -44,9 +52,11 @@ const App = () => {
           </Card>
         ))}
       </Container>
-      <Modal toggle={toggle} isOpen={isOpen}>
-        <ModalHeader toggle={toggle}>Modal title</ModalHeader>
-        <ModalBody>test</ModalBody>
+      <Modal toggle={() => toggle()} isOpen={isOpen}>
+        <ModalHeader toggle={() => toggle()}>{detail?.name}</ModalHeader>
+        <ModalBody>
+          <img src={detail?.imageUrl} alt="pokemon" />
+        </ModalBody>
       </Modal>
     </>
   );

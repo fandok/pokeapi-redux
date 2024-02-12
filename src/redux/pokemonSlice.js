@@ -13,9 +13,12 @@ export const fetchPokemonList = createAsyncThunk(
 
 export const fetchPokemonDetail = createAsyncThunk(
   "pokemon/updateDetail",
-  async (val) => {
-    const response = await axios.get(`${API_URL}/${val}`);
-    return response.data;
+  async (url) => {
+    const response = await axios.get(url);
+    return {
+      name: response.data.name,
+      imageUrl: response.data.sprites.other["official-artwork"].front_default,
+    };
   },
 );
 
@@ -27,17 +30,22 @@ const initialState = {
 export const pokemonSlice = createSlice({
   name: "pokemon",
   initialState,
-  reducers: {},
+  reducers: {
+    resetDetail: (state) => {
+      state.detail = {};
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchPokemonList.fulfilled, (state, action) => {
       state.list = action.payload;
     });
+
     builder.addCase(fetchPokemonDetail.fulfilled, (state, action) => {
       state.detail = action.payload;
     });
   },
 });
 
-export const { updateDetail, updateList } = pokemonSlice.actions;
+export const { resetDetail } = pokemonSlice.actions;
 
 export default pokemonSlice.reducer;
